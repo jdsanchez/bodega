@@ -21,6 +21,15 @@
                     <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
                         {{ __('Empleados') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('warehouses.index')" :active="request()->routeIs('warehouses.*')">
+                        {{ __('Bodegas') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+                        {{ __('Proveedores') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('textile-types.index')" :active="request()->routeIs('textile-types.*')">
+                        {{ __('Textiles') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Usuarios') }}
                     </x-nav-link>
@@ -94,6 +103,15 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
                 {{ __('Empleados') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('warehouses.index')" :active="request()->routeIs('warehouses.*')">
+                {{ __('Bodegas') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
+                {{ __('Proveedores') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('textile-types.index')" :active="request()->routeIs('textile-types.*')">
+                {{ __('Textiles') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                 {{ __('Usuarios') }}
