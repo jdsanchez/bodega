@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -13,7 +14,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::with('supervisor')->latest()->paginate(10);
+        $employees = Employee::with(['supervisor', 'warehouse'])->latest()->paginate(10);
         return view('employees.index', compact('employees'));
     }
 
@@ -23,10 +24,12 @@ class EmployeeController extends Controller
     public function create()
     {
         $roles = Employee::getRoles();
+        $statuses = Employee::getStatuses();
+        $warehouses = Warehouse::where('status', 'activa')->get();
         $supervisors = Employee::where('is_active', true)
             ->whereIn('role', ['jefe', 'gerente', 'administrador', 'encargado_bodega'])
             ->get();
-        return view('employees.create', compact('roles', 'supervisors'));
+        return view('employees.create', compact('roles', 'statuses', 'warehouses', 'supervisors'));
     }
 
     /**
@@ -47,6 +50,8 @@ class EmployeeController extends Controller
             'start_date' => 'nullable|date',
             'role' => 'required|in:' . implode(',', array_keys(Employee::getRoles())),
             'supervisor_id' => 'nullable|exists:employees,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'status' => 'required|in:' . implode(',', array_keys(Employee::getStatuses())),
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -74,11 +79,13 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         $roles = Employee::getRoles();
+        $statuses = Employee::getStatuses();
+        $warehouses = Warehouse::where('status', 'activa')->get();
         $supervisors = Employee::where('is_active', true)
             ->where('id', '!=', $employee->id)
             ->whereIn('role', ['jefe', 'gerente', 'administrador', 'encargado_bodega'])
             ->get();
-        return view('employees.edit', compact('employee', 'roles', 'supervisors'));
+        return view('employees.edit', compact('employee', 'roles', 'statuses', 'warehouses', 'supervisors'));
     }
 
     /**
@@ -99,6 +106,8 @@ class EmployeeController extends Controller
             'start_date' => 'nullable|date',
             'role' => 'required|in:' . implode(',', array_keys(Employee::getRoles())),
             'supervisor_id' => 'nullable|exists:employees,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'status' => 'required|in:' . implode(',', array_keys(Employee::getStatuses())),
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'is_active' => 'boolean',
         ]);

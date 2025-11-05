@@ -7,6 +7,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TextileTypeController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\ContactController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -42,6 +43,9 @@ Route::middleware('auth')->group(function () {
     
     // Rutas de bodegas
     Route::resource('warehouses', WarehouseController::class);
+    
+    // Rutas de contactos
+    Route::resource('contacts', ContactController::class);
 });
 
 require __DIR__.'/auth.php';

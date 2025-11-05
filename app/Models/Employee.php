@@ -21,7 +21,9 @@ class Employee extends Model
         'start_date',
         'role',
         'supervisor_id',
+        'warehouse_id',
         'photo',
+        'status',
         'is_active',
     ];
 
@@ -36,6 +38,12 @@ class Employee extends Model
     public function supervisor(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'supervisor_id');
+    }
+
+    // Relación con la bodega
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class, 'warehouse_id');
     }
 
     // Relación con los empleados supervisados
@@ -87,6 +95,46 @@ class Employee extends Model
             'jefe' => 'Jefe',
             'administrador' => 'Administrador',
             'gerente' => 'Gerente',
+        ];
+    }
+
+    // Accessor para el nombre del estado en español
+    public function getStatusLabelAttribute(): string
+    {
+        $statuses = [
+            'activo' => 'Activo',
+            'inactivo' => 'Inactivo',
+            'suspendido' => 'Suspendido',
+            'vacaciones' => 'Vacaciones',
+            'temporal' => 'Temporal',
+        ];
+
+        return $statuses[$this->status] ?? $this->status;
+    }
+
+    // Accessor para el color del estado
+    public function getStatusColorAttribute(): string
+    {
+        $colors = [
+            'activo' => 'green',
+            'inactivo' => 'gray',
+            'suspendido' => 'red',
+            'vacaciones' => 'blue',
+            'temporal' => 'yellow',
+        ];
+
+        return $colors[$this->status] ?? 'gray';
+    }
+
+    // Obtener todos los estados disponibles
+    public static function getStatuses(): array
+    {
+        return [
+            'activo' => 'Activo',
+            'inactivo' => 'Inactivo',
+            'suspendido' => 'Suspendido',
+            'vacaciones' => 'Vacaciones',
+            'temporal' => 'Temporal',
         ];
     }
 }

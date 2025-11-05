@@ -135,6 +135,31 @@
                                     <x-input-error :messages="$errors->get('supervisor_id')" class="mt-2" />
                                 </div>
 
+                                <!-- Bodega -->
+                                <div>
+                                    <x-input-label for="warehouse_id" :value="__('Bodega Asignada')" class="dark:text-gray-200" />
+                                    <select id="warehouse_id" name="warehouse_id" class="block mt-2 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                        <option value="">Sin bodega asignada</option>
+                                        @foreach($warehouses as $warehouse)
+                                            <option value="{{ $warehouse->id }}" {{ old('warehouse_id', $employee->warehouse_id) == $warehouse->id ? 'selected' : '' }}>
+                                                {{ $warehouse->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('warehouse_id')" class="mt-2" />
+                                </div>
+
+                                <!-- Estado -->
+                                <div>
+                                    <x-input-label for="status" :value="__('Estado del Empleado')" class="dark:text-gray-200" />
+                                    <select id="status" name="status" required class="block mt-2 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                        @foreach($statuses as $key => $value)
+                                            <option value="{{ $key }}" {{ old('status', $employee->status) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                                </div>
+
                                 <!-- Fecha de Contratación -->
                                 <div>
                                     <x-input-label for="hire_date" :value="__('Fecha de Contratación')" class="dark:text-gray-200" />
