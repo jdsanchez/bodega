@@ -8,6 +8,7 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TextileTypeController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ProductTypeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function () {
     
     // Rutas de contactos
     Route::resource('contacts', ContactController::class);
+    
+    // Rutas de tipos de producto
+    Route::resource('product-types', ProductTypeController::class);
 });
 
 require __DIR__.'/auth.php';

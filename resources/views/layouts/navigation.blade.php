@@ -30,6 +30,9 @@
                     <x-nav-link :href="route('textile-types.index')" :active="request()->routeIs('textile-types.*')">
                         {{ __('Textiles') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('product-types.index')" :active="request()->routeIs('product-types.*')">
+                        {{ __('Tipos de Producto') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('contacts.index')" :active="request()->routeIs('contacts.*')">
                         {{ __('Contactos') }}
                     </x-nav-link>
@@ -115,6 +118,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('textile-types.index')" :active="request()->routeIs('textile-types.*')">
                 {{ __('Textiles') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('product-types.index')" :active="request()->routeIs('product-types.*')">
+                {{ __('Tipos de Producto') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('contacts.index')" :active="request()->routeIs('contacts.*')">
                 {{ __('Contactos') }}
