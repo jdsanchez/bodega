@@ -9,6 +9,7 @@ use App\Http\Controllers\TextileTypeController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProductTypeController;
+use App\Http\Controllers\InventoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -50,6 +51,12 @@ Route::middleware('auth')->group(function () {
     
     // Rutas de tipos de producto
     Route::resource('product-types', ProductTypeController::class);
+    
+    // Rutas de inventario
+    Route::resource('inventory', InventoryController::class);
+    Route::get('/inventory/export', [InventoryController::class, 'export'])->name('inventory.export');
+    Route::post('/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
+    Route::delete('/inventory/{id}/force-delete', [InventoryController::class, 'forceDelete'])->name('inventory.forceDelete');
 });
 
 require __DIR__.'/auth.php';
