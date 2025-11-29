@@ -359,4 +359,175 @@ class InventoryController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * Descargar plantilla CSV para importación masiva
+     */
+    public function template()
+    {
+        $filename = 'plantilla_importacion_inventario.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() {
+            $file = fopen('php://output', 'w');
+            
+            // BOM para UTF-8
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            // Encabezados
+            fputcsv($file, [
+                'product_name',
+                'warehouse_id',
+                'product_type_id',
+                'textile_type_id',
+                'sku',
+                'barcode',
+                'quantity',
+                'unit',
+                'unit_price',
+                'location',
+                'min_stock',
+                'max_stock',
+                'notes'
+            ]);
+
+            // Fila de ejemplo
+            fputcsv($file, [
+                'Tela de Algodón Premium',
+                '1',
+                '1',
+                '1',
+                'ALG-001',
+                '7501234567890',
+                '100',
+                'metros',
+                '25.50',
+                'A-01-15',
+                '20',
+                '200',
+                'Material de alta calidad para producción'
+            ]);
+
+            // Otra fila de ejemplo
+            fputcsv($file, [
+                'Botones de Metal',
+                '1',
+                '2',
+                '',
+                'BTN-MET-50',
+                '',
+                '500',
+                'unidades',
+                '0.50',
+                'B-03-08',
+                '100',
+                '1000',
+                'Botones dorados para camisas'
+            ]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Importar productos masivamente desde CSV/Excel
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240'
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            
+            $imported = 0;
+            $errors = [];
+            $rowNumber = 1;
+
+            if (in_array($extension, ['csv', 'txt'])) {
+                // Procesar CSV
+                if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
+                    // Leer encabezados
+                    $headers = fgetcsv($handle);
+                    $rowNumber++;
+
+                    while (($data = fgetcsv($handle)) !== false) {
+                        try {
+                            $row = array_combine($headers, $data);
+                            
+                            // Validar campos requeridos
+                            if (empty($row['product_name']) || empty($row['warehouse_id']) || empty($row['quantity']) || empty($row['unit_price'])) {
+                                $errors[] = "Fila $rowNumber: Faltan campos requeridos (product_name, warehouse_id, quantity, unit_price)";
+                                $rowNumber++;
+                                continue;
+                            }
+
+                            // Validar que la bodega existe
+                            $warehouse = Warehouse::find($row['warehouse_id']);
+                            if (!$warehouse) {
+                                $errors[] = "Fila $rowNumber: Bodega ID {$row['warehouse_id']} no existe";
+                                $rowNumber++;
+                                continue;
+                            }
+
+                            // Crear el producto en inventario
+                            Inventory::create([
+                                'product_name' => $row['product_name'],
+                                'warehouse_id' => $row['warehouse_id'],
+                                'product_type_id' => !empty($row['product_type_id']) ? $row['product_type_id'] : null,
+                                'textile_type_id' => !empty($row['textile_type_id']) ? $row['textile_type_id'] : null,
+                                'sku' => $row['sku'] ?? null,
+                                'barcode' => $row['barcode'] ?? null,
+                                'quantity' => $row['quantity'],
+                                'unit' => $row['unit'] ?? 'unidades',
+                                'unit_price' => $row['unit_price'],
+                                'total_price' => $row['quantity'] * $row['unit_price'],
+                                'location' => $row['location'] ?? null,
+                                'min_stock' => !empty($row['min_stock']) ? $row['min_stock'] : 0,
+                                'max_stock' => !empty($row['max_stock']) ? $row['max_stock'] : null,
+                                'notes' => $row['notes'] ?? null,
+                                'status' => 'activo',
+                                'created_by' => auth()->id(),
+                            ]);
+
+                            $imported++;
+                        } catch (\Exception $e) {
+                            $errors[] = "Fila $rowNumber: " . $e->getMessage();
+                        }
+                        
+                        $rowNumber++;
+                    }
+
+                    fclose($handle);
+                }
+            } elseif (in_array($extension, ['xlsx', 'xls'])) {
+                // Para Excel, necesitaríamos una librería como PhpSpreadsheet
+                // Por ahora, sugerimos convertir a CSV
+                return back()->with('error', 'Por favor, convierta el archivo Excel a formato CSV para importar.');
+            }
+
+            $message = "$imported productos importados exitosamente.";
+            if (count($errors) > 0) {
+                $message .= " " . count($errors) . " errores encontrados: " . implode(', ', array_slice($errors, 0, 5));
+                if (count($errors) > 5) {
+                    $message .= "... y " . (count($errors) - 5) . " más.";
+                }
+            }
+
+            return redirect()->route('inventory.index')->with('success', $message);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al importar el archivo: ' . $e->getMessage());
+        }
+    }
 }

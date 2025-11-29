@@ -11,6 +11,12 @@
                     </svg>
                     Exportar CSV
                 </a>
+                <button @click="showImportModal = true" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    Importar CSV
+                </button>
                 <a href="{{ route('inventory.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -214,4 +220,122 @@
             </div>
         </div>
     </div>
+
+    <!-- Import Modal -->
+    <div x-data="{ showImportModal: false }" x-show="showImportModal" x-cloak
+        class="fixed inset-0 z-50 overflow-y-auto" 
+        aria-labelledby="modal-title" 
+        role="dialog" 
+        aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showImportModal" 
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+                aria-hidden="true"
+                @click="showImportModal = false"></div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div x-show="showImportModal"
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <form action="{{ route('inventory.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100" id="modal-title">
+                                    Importar Productos Masivamente
+                                </h3>
+                                <div class="mt-4 space-y-4">
+                                    <div>
+                                        <label for="file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            Archivo CSV/Excel *
+                                        </label>
+                                        <input type="file" 
+                                            name="file" 
+                                            id="file"
+                                            accept=".csv,.xlsx,.xls"
+                                            required
+                                            class="block w-full text-sm text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-900 focus:outline-none focus:border-blue-500 focus:ring-blue-500">
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                            Formatos soportados: CSV, Excel (.xlsx, .xls)
+                                        </p>
+                                    </div>
+
+                                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                                                    Formato del Archivo
+                                                </h3>
+                                                <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                                                    <p>El archivo debe contener las siguientes columnas:</p>
+                                                    <ul class="list-disc list-inside mt-1 space-y-1">
+                                                        <li><strong>product_name</strong> (requerido)</li>
+                                                        <li><strong>warehouse_id</strong> (ID de bodega)</li>
+                                                        <li><strong>product_type_id</strong> (ID tipo producto, opcional)</li>
+                                                        <li><strong>textile_type_id</strong> (ID tipo textil, opcional)</li>
+                                                        <li><strong>sku</strong> (opcional)</li>
+                                                        <li><strong>barcode</strong> (opcional)</li>
+                                                        <li><strong>quantity</strong> (requerido)</li>
+                                                        <li><strong>unit</strong> (ej: kg, m, unidades)</li>
+                                                        <li><strong>unit_price</strong> (requerido)</li>
+                                                        <li><strong>location</strong> (ubicación, opcional)</li>
+                                                        <li><strong>min_stock</strong> (stock mínimo, opcional)</li>
+                                                        <li><strong>max_stock</strong> (stock máximo, opcional)</li>
+                                                        <li><strong>notes</strong> (notas, opcional)</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <a href="{{ route('inventory.template') }}" 
+                                                        class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300">
+                                                        Descargar plantilla de ejemplo →
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Importar Productos
+                        </button>
+                        <button type="button" @click="showImportModal = false"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </x-app-layout>

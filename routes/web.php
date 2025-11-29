@@ -56,6 +56,8 @@ Route::middleware('auth')->group(function () {
     // Rutas de inventario
     Route::resource('inventory', InventoryController::class);
     Route::get('/inventory/export', [InventoryController::class, 'export'])->name('inventory.export');
+    Route::get('/inventory/template', [InventoryController::class, 'template'])->name('inventory.template');
+    Route::post('/inventory/import', [InventoryController::class, 'import'])->name('inventory.import');
     Route::post('/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
     Route::delete('/inventory/{id}/force-delete', [InventoryController::class, 'forceDelete'])->name('inventory.forceDelete');
     
