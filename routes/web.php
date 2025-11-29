@@ -10,6 +10,7 @@ use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProductTypeController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ReceptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -57,6 +58,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/export', [InventoryController::class, 'export'])->name('inventory.export');
     Route::post('/inventory/{id}/restore', [InventoryController::class, 'restore'])->name('inventory.restore');
     Route::delete('/inventory/{id}/force-delete', [InventoryController::class, 'forceDelete'])->name('inventory.forceDelete');
+    
+    // Rutas de recepciones
+    Route::resource('receptions', ReceptionController::class);
+    Route::get('/receptions/{reception}/receive', [ReceptionController::class, 'receive'])->name('receptions.receive');
+    Route::post('/receptions/{reception}/process', [ReceptionController::class, 'processReceipt'])->name('receptions.process');
+    Route::post('/receptions/{reception}/reject', [ReceptionController::class, 'reject'])->name('receptions.reject');
 });
 
 require __DIR__.'/auth.php';

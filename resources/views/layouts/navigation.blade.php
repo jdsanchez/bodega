@@ -73,6 +73,9 @@
                              class="absolute left-0 z-50 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5"
                              style="display: none; top: 100%; margin-top: 0.5rem;">
                             <div class="py-1">
+                                <a href="{{ route('receptions.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('receptions.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
+                                    {{ __('Recepciones') }}
+                                </a>
                                 <a href="{{ route('inventory.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('inventory.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
                                     {{ __('Inventario') }}
                                 </a>
@@ -194,6 +197,9 @@
                 </button>
                 
                 <div x-show="inventoryOpen" x-transition class="pl-4 space-y-1">
+                    <x-responsive-nav-link :href="route('receptions.index')" :active="request()->routeIs('receptions.*')">
+                        {{ __('Recepciones') }}
+                    </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('inventory.index')" :active="request()->routeIs('inventory.*')">
                         {{ __('Inventario') }}
                     </x-responsive-nav-link>
