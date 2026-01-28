@@ -11,7 +11,7 @@
                     </svg>
                     Exportar CSV
                 </a>
-                <button @click="showImportModal = true" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <button onclick="toggleImportModal()" id="importButton" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                     </svg>
@@ -222,32 +222,19 @@
     </div>
 
     <!-- Import Modal -->
-    <div x-data="{ showImportModal: false }" x-show="showImportModal" x-cloak
+    <div id="importModal" style="display: none;"
         class="fixed inset-0 z-50 overflow-y-auto" 
         aria-labelledby="modal-title" 
         role="dialog" 
         aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div x-show="showImportModal" 
-                x-transition:enter="ease-out duration-300"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="ease-in duration-200"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0"
-                class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
                 aria-hidden="true"
-                @click="showImportModal = false"></div>
+                onclick="toggleImportModal()"></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div x-show="showImportModal"
-                x-transition:enter="ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                x-transition:leave="ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            <div
                 class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
                 <form action="{{ route('inventory.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
@@ -292,19 +279,15 @@
                                                 <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
                                                     <p>El archivo debe contener las siguientes columnas:</p>
                                                     <ul class="list-disc list-inside mt-1 space-y-1">
-                                                        <li><strong>product_name</strong> (requerido)</li>
-                                                        <li><strong>warehouse_id</strong> (ID de bodega)</li>
-                                                        <li><strong>product_type_id</strong> (ID tipo producto, opcional)</li>
-                                                        <li><strong>textile_type_id</strong> (ID tipo textil, opcional)</li>
-                                                        <li><strong>sku</strong> (opcional)</li>
-                                                        <li><strong>barcode</strong> (opcional)</li>
-                                                        <li><strong>quantity</strong> (requerido)</li>
-                                                        <li><strong>unit</strong> (ej: kg, m, unidades)</li>
-                                                        <li><strong>unit_price</strong> (requerido)</li>
-                                                        <li><strong>location</strong> (ubicación, opcional)</li>
-                                                        <li><strong>min_stock</strong> (stock mínimo, opcional)</li>
-                                                        <li><strong>max_stock</strong> (stock máximo, opcional)</li>
-                                                        <li><strong>notes</strong> (notas, opcional)</li>
+                                                        <li><strong>CODIGO_PRODUCTO</strong> (SKU, opcional - se genera automático)</li>
+                                                        <li><strong>DESCRIPCION</strong> (requerido)</li>
+                                                        <li><strong>UNIDAD_DE_MEDIDA</strong> (metros, kg, unidades, etc.)</li>
+                                                        <li><strong>CANTIDAD</strong> (requerido)</li>
+                                                        <li><strong>COSTO_UNITARIO</strong> (requerido)</li>
+                                                        <li><strong>COSTO_TOTAL</strong> (opcional - se calcula automático)</li>
+                                                        <li><strong>MALETA O ROLLO</strong> (identificador, opcional)</li>
+                                                        <li><strong>TELA</strong> (tipo de textil, opcional)</li>
+                                                        <li><strong>COLOR</strong> (opcional)</li>
                                                     </ul>
                                                 </div>
                                                 <div class="mt-3">
@@ -325,7 +308,7 @@
                             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
                             Importar Productos
                         </button>
-                        <button type="button" @click="showImportModal = false"
+                        <button type="button" onclick="toggleImportModal()"
                             class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Cancelar
                         </button>
@@ -335,7 +318,14 @@
         </div>
     </div>
 
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
+    <script>
+        function toggleImportModal() {
+            const modal = document.getElementById('importModal');
+            if (modal.style.display === 'none') {
+                modal.style.display = 'block';
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
 </x-app-layout>

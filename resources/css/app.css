@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    /* Toggle Switch Custom Styles */
+    input[type="checkbox"].permission-toggle:checked + .toggle-slider {
+        @apply bg-green-600;
+    }
+    
+    input[type="checkbox"].permission-toggle:checked + .toggle-slider:before {
+        transform: translateX(20px);
+    }
+    
+    input[type="checkbox"].permission-toggle:focus + .toggle-slider {
+        @apply ring-4 ring-blue-300;
+    }
+}

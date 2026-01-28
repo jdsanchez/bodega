@@ -17,6 +17,18 @@
                     </x-nav-link>
                     
                     <!-- Admin Dropdown -->
+                    <!-- Usuarios (solo Super Admin) -->
+                    @if(auth()->user()->isSuperAdmin())
+                    <x-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.*')">
+                        {{ __('Permisos') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                        {{ __('Usuarios') }}
+                    </x-nav-link>
+                    @endif
+
+                    <!-- Admin Dropdown - Solo para Admin y Super Admin -->
+                    @if(auth()->user()->hasAnyRole(['super_admin', 'admin']))
                     <div class="relative inline-flex" x-data="{ open: false }" @click.away="open = false">
                         <div @click="open = !open" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out cursor-pointer {{ request()->routeIs('employees.*') || request()->routeIs('attendance.*') || request()->routeIs('contacts.*') || request()->routeIs('users.*') || request()->routeIs('suppliers.*') ? 'border-indigo-400 dark:border-indigo-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700' }}">
                             <span>{{ __('Admin') }}</span>
@@ -44,17 +56,21 @@
                                 <a href="{{ route('contacts.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('contacts.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
                                     {{ __('Contactos') }}
                                 </a>
+                                @if(auth()->user()->isSuperAdmin())
                                 <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('users.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
                                     {{ __('Usuarios') }}
                                 </a>
+                                @endif
                                 <a href="{{ route('suppliers.index') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('suppliers.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
                                     {{ __('Proveedores') }}
                                 </a>
                             </div>
                         </div>
                     </div>
+                    @endif
                     
-                    <!-- Inventario Bodega Dropdown -->
+                    <!-- Inventario Bodega Dropdown - Para roles con acceso a inventario -->
+                    @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'gerente_bodega', 'supervisor']))
                     <div class="relative inline-flex" x-data="{ open: false }" @click.away="open = false">
                         <div @click="open = !open" class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out cursor-pointer {{ request()->routeIs('warehouses.*') || request()->routeIs('textile-types.*') || request()->routeIs('product-types.*') || request()->routeIs('inventory.*') ? 'border-indigo-400 dark:border-indigo-500 text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700' }}">
                             <span>{{ __('Inventario Bodega') }}</span>
@@ -91,6 +107,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -157,7 +174,18 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
-            <!-- Admin Section -->
+            <!-- Usuarios / Permisos (solo Super Admin) -->
+            @if(auth()->user()->isSuperAdmin())
+            <x-responsive-nav-link :href="route('permissions.index')" :active="request()->routeIs('permissions.*')">
+                {{ __('Permisos') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
+                {{ __('Usuarios') }}
+            </x-responsive-nav-link>
+            @endif
+            
+            <!-- Admin Section - Solo para Admin y Super Admin -->
+            @if(auth()->user()->hasAnyRole(['super_admin', 'admin']))
             <div x-data="{ adminOpen: false }" class="space-y-1">
                 <button @click="adminOpen = !adminOpen" class="w-full flex items-center justify-between pl-3 pr-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out"
                         :class="{'border-indigo-400 dark:border-indigo-600 text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/50': {{ request()->routeIs('employees.*') || request()->routeIs('attendance.*') || request()->routeIs('contacts.*') || request()->routeIs('users.*') || request()->routeIs('suppliers.*') ? 'true' : 'false' }}, 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600': !{{ request()->routeIs('employees.*') || request()->routeIs('attendance.*') || request()->routeIs('contacts.*') || request()->routeIs('users.*') || request()->routeIs('suppliers.*') ? 'true' : 'false' }}}">
@@ -177,16 +205,20 @@
                     <x-responsive-nav-link :href="route('contacts.index')" :active="request()->routeIs('contacts.*')">
                         {{ __('Contactos') }}
                     </x-responsive-nav-link>
+                    @if(auth()->user()->isSuperAdmin())
                     <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                         {{ __('Usuarios') }}
                     </x-responsive-nav-link>
+                    @endif
                     <x-responsive-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')">
                         {{ __('Proveedores') }}
                     </x-responsive-nav-link>
                 </div>
             </div>
+            @endif
             
-            <!-- Inventario Bodega Section -->
+            <!-- Inventario Bodega Section - Para roles con acceso a inventario -->
+            @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'gerente_bodega', 'supervisor']))
             <div x-data="{ inventoryOpen: false }" class="space-y-1">
                 <button @click="inventoryOpen = !inventoryOpen" class="w-full flex items-center justify-between pl-3 pr-4 py-2 border-l-4 text-base font-medium transition duration-150 ease-in-out"
                         :class="{'border-indigo-400 dark:border-indigo-600 text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/50': {{ request()->routeIs('warehouses.*') || request()->routeIs('textile-types.*') || request()->routeIs('product-types.*') || request()->routeIs('inventory.*') ? 'true' : 'false' }}, 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600': !{{ request()->routeIs('warehouses.*') || request()->routeIs('textile-types.*') || request()->routeIs('product-types.*') || request()->routeIs('inventory.*') ? 'true' : 'false' }}}">
@@ -214,6 +246,7 @@
                     </x-responsive-nav-link>
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

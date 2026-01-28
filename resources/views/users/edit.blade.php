@@ -45,6 +45,17 @@
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
 
+                        <!-- Role -->
+                        <div>
+                            <x-input-label for="role" :value="__('Role')" class="dark:text-gray-200" />
+                            <select id="role" name="role" class="block mt-2 w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                @foreach($roles as $roleKey => $roleName)
+                                    <option value="{{ $roleKey }}" {{ old('role', $user->role) == $roleKey ? 'selected' : '' }}>{{ $roleName }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                        </div>
+
                         <!-- Password (Optional) -->
                         <div>
                             <x-input-label for="password" :value="__('New password (optional)')" class="dark:text-gray-200" />

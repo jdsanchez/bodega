@@ -114,6 +114,8 @@ class InventoryController extends Controller
             'barcode' => 'nullable|string|unique:inventories,barcode|max:255',
             'sku' => 'required|string|unique:inventories,sku|max:255',
             'location' => 'nullable|string|max:255',
+            'maleta_rollo' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:100',
             'status' => 'required|in:disponible,reservado,agotado,en_transito,dañado',
             'notes' => 'nullable|string',
             'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -192,6 +194,8 @@ class InventoryController extends Controller
             'barcode' => 'nullable|string|max:255|unique:inventories,barcode,' . $inventory->id,
             'sku' => 'required|string|max:255|unique:inventories,sku,' . $inventory->id,
             'location' => 'nullable|string|max:255',
+            'maleta_rollo' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:100',
             'status' => 'required|in:disponible,reservado,agotado,en_transito,dañado',
             'notes' => 'nullable|string',
             'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -328,6 +332,8 @@ class InventoryController extends Controller
                 'Precio Total',
                 'Código de Barras',
                 'Ubicación',
+                'Maleta/Rollo',
+                'Color',
                 'Estado',
                 'Notas',
                 'Creado por',
@@ -348,6 +354,8 @@ class InventoryController extends Controller
                     $item->total_price,
                     $item->barcode ?? '',
                     $item->location ?? '',
+                    $item->maleta_rollo ?? '',
+                    $item->color ?? '',
                     $item->status_label,
                     $item->creator->name ?? 'N/A',
                     $item->created_at->format('d/m/Y H:i'),
@@ -380,55 +388,43 @@ class InventoryController extends Controller
             // BOM para UTF-8
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
             
-            // Encabezados
+            // Encabezados - Formato solicitado
             fputcsv($file, [
-                'product_name',
-                'warehouse_id',
-                'product_type_id',
-                'textile_type_id',
-                'sku',
-                'barcode',
-                'quantity',
-                'unit',
-                'unit_price',
-                'location',
-                'min_stock',
-                'max_stock',
-                'notes'
+                'CODIGO_PRODUCTO',
+                'DESCRIPCION',
+                'UNIDAD_DE_MEDIDA',
+                'CANTIDAD',
+                'COSTO_UNITARIO',
+                'COSTO_TOTAL',
+                'MALETA O ROLLO',
+                'TELA',
+                'COLOR'
             ]);
 
             // Fila de ejemplo
             fputcsv($file, [
-                'Tela de Algodón Premium',
-                '1',
-                '1',
-                '1',
                 'ALG-001',
-                '7501234567890',
-                '100',
+                'Tela de Algodón Premium',
                 'metros',
+                '100',
                 '25.50',
-                'A-01-15',
-                '20',
-                '200',
-                'Material de alta calidad para producción'
+                '2550.00',
+                'ROLLO-A1',
+                'Algodón',
+                'Blanco'
             ]);
 
             // Otra fila de ejemplo
             fputcsv($file, [
-                'Botones de Metal',
-                '1',
-                '2',
-                '',
-                'BTN-MET-50',
-                '',
-                '500',
-                'unidades',
-                '0.50',
-                'B-03-08',
-                '100',
-                '1000',
-                'Botones dorados para camisas'
+                'SED-002',
+                'Seda Natural',
+                'metros',
+                '50',
+                '85.00',
+                '4250.00',
+                'MALETA-B3',
+                'Seda',
+                'Rojo'
             ]);
 
             fclose($file);
@@ -465,38 +461,59 @@ class InventoryController extends Controller
                         try {
                             $row = array_combine($headers, $data);
                             
+                            // Mapear campos del formato solicitado
+                            $codigoProducto = $row['CODIGO_PRODUCTO'] ?? null;
+                            $descripcion = $row['DESCRIPCION'] ?? null;
+                            $unidadMedida = $row['UNIDAD_DE_MEDIDA'] ?? 'unidades';
+                            $cantidad = $row['CANTIDAD'] ?? null;
+                            $costoUnitario = $row['COSTO_UNITARIO'] ?? null;
+                            $costoTotal = $row['COSTO_TOTAL'] ?? null;
+                            $maletaRollo = $row['MALETA O ROLLO'] ?? null;
+                            $tela = $row['TELA'] ?? null;
+                            $color = $row['COLOR'] ?? null;
+                            
                             // Validar campos requeridos
-                            if (empty($row['product_name']) || empty($row['warehouse_id']) || empty($row['quantity']) || empty($row['unit_price'])) {
-                                $errors[] = "Fila $rowNumber: Faltan campos requeridos (product_name, warehouse_id, quantity, unit_price)";
+                            if (empty($descripcion) || empty($cantidad) || empty($costoUnitario)) {
+                                $errors[] = "Fila $rowNumber: Faltan campos requeridos (DESCRIPCION, CANTIDAD, COSTO_UNITARIO)";
                                 $rowNumber++;
                                 continue;
                             }
 
-                            // Validar que la bodega existe
-                            $warehouse = Warehouse::find($row['warehouse_id']);
+                            // Obtener la primera bodega activa si no se especifica
+                            $warehouse = Warehouse::where('status', 'activo')->first();
                             if (!$warehouse) {
-                                $errors[] = "Fila $rowNumber: Bodega ID {$row['warehouse_id']} no existe";
+                                $errors[] = "Fila $rowNumber: No hay bodegas activas en el sistema";
                                 $rowNumber++;
                                 continue;
                             }
+
+                            // Buscar tipo de textil por nombre
+                            $textileTypeId = null;
+                            if (!empty($tela)) {
+                                $textileType = TextileType::where('name', 'LIKE', "%$tela%")->first();
+                                $textileTypeId = $textileType ? $textileType->id : null;
+                            }
+
+                            // Obtener tipo de producto predeterminado
+                            $productType = ProductType::first();
+
+                            // Generar SKU si no existe
+                            $sku = $codigoProducto ?? 'SKU-' . time() . '-' . $rowNumber;
 
                             // Crear el producto en inventario
                             Inventory::create([
-                                'product_name' => $row['product_name'],
-                                'warehouse_id' => $row['warehouse_id'],
-                                'product_type_id' => !empty($row['product_type_id']) ? $row['product_type_id'] : null,
-                                'textile_type_id' => !empty($row['textile_type_id']) ? $row['textile_type_id'] : null,
-                                'sku' => $row['sku'] ?? null,
-                                'barcode' => $row['barcode'] ?? null,
-                                'quantity' => $row['quantity'],
-                                'unit' => $row['unit'] ?? 'unidades',
-                                'unit_price' => $row['unit_price'],
-                                'total_price' => $row['quantity'] * $row['unit_price'],
-                                'location' => $row['location'] ?? null,
-                                'min_stock' => !empty($row['min_stock']) ? $row['min_stock'] : 0,
-                                'max_stock' => !empty($row['max_stock']) ? $row['max_stock'] : null,
-                                'notes' => $row['notes'] ?? null,
-                                'status' => 'activo',
+                                'name' => $descripcion,
+                                'warehouse_id' => $warehouse->id,
+                                'product_type_id' => $productType ? $productType->id : null,
+                                'textile_type_id' => $textileTypeId,
+                                'sku' => $sku,
+                                'quantity' => (float)$cantidad,
+                                'unit' => $unidadMedida,
+                                'unit_price' => (float)$costoUnitario,
+                                'total_price' => !empty($costoTotal) ? (float)$costoTotal : ((float)$cantidad * (float)$costoUnitario),
+                                'maleta_rollo' => $maletaRollo,
+                                'color' => $color,
+                                'status' => 'disponible',
                                 'created_by' => auth()->id(),
                             ]);
 

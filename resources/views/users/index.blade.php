@@ -79,11 +79,17 @@
                                             <div class="text-sm text-gray-900 dark:text-gray-100">{{ $user->updated_at->format('d M Y') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
-                                                User
-                                                <svg class="ml-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                                </svg>
+                                            @php
+                                                $roleColors = [
+                                                    'super_admin' => 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
+                                                    'admin' => 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
+                                                    'gerente_bodega' => 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
+                                                    'supervisor' => 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
+                                                    'empleado' => 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
+                                                ];
+                                            @endphp
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium {{ $roleColors[$user->role] ?? $roleColors['empleado'] }}">
+                                                {{ $user->role_name }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">

@@ -22,6 +22,8 @@ class Inventory extends Model
         'barcode',
         'sku',
         'location',
+        'maleta_rollo',
+        'color',
         'status',
         'notes',
         'photos',
