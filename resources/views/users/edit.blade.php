@@ -28,8 +28,20 @@
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $user->name }}</h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}</p>
+                                @if($user->user_code)
+                                    <p class="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400 mt-1">{{ $user->user_code }}</p>
+                                @endif
                             </div>
                         </div>
+
+                        <!-- User Code (Read-only) -->
+                        @if($user->user_code)
+                        <div>
+                            <x-input-label for="user_code" value="Código de Usuario" class="dark:text-gray-200" />
+                            <x-text-input id="user_code" class="block mt-2 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 bg-gray-50 dark:bg-gray-900 cursor-not-allowed font-mono font-semibold text-indigo-600 dark:text-indigo-400" type="text" :value="$user->user_code" readonly />
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Este código se generó automáticamente y no se puede modificar</p>
+                        </div>
+                        @endif
 
                         <!-- Name -->
                         <div>

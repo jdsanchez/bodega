@@ -13,11 +13,46 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Boot del modelo para generar el código de usuario automáticamente
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (empty($user->user_code)) {
+                $user->user_code = static::generateUserCode();
+            }
+        });
+    }
+
+    /**
+     * Generar código único de usuario con formato BP0001
+     */
+    public static function generateUserCode(): string
+    {
+        // Obtener el último usuario
+        $lastUser = static::orderBy('id', 'desc')->first();
+        
+        if (!$lastUser || !$lastUser->user_code) {
+            return 'BP0001';
+        }
+
+        // Extraer el número del último código
+        $lastNumber = (int) substr($lastUser->user_code, 2);
+        $newNumber = $lastNumber + 1;
+
+        // Formatear con padding de 4 dígitos
+        return 'BP' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'user_code',
         'name',
         'email',
         'password',
